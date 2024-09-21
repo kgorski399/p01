@@ -23,7 +23,7 @@ jobs:
 
       - name: Build Flutter Web
         run: |
-          cd my_flutter_project  
+          cd flutter_application_1  
           flutter pub get       
           flutter build web      
 
