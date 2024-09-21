@@ -21,11 +21,12 @@ jobs:
         with:
           flutter-version: '3.24.3'
 
-      - name: Flutter Pub Get
-        run: flutter pub get 
-
       - name: Build Flutter Web
-        run: flutter build web  
+        run: |
+          cd my_flutter_project  
+          flutter pub get       
+          flutter build web      
+
 
 
       - name: Configure AWS credentials using OIDC
