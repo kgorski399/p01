@@ -1,0 +1,28 @@
+name: Deploy to S3 on dev branch
+
+on:
+  push:
+    branches:
+      - dev  # Uruchom workflow tylko dla gałęzi dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write  # Potrzebne do korzystania z OIDC
+      contents: read   # Uprawnienia do czytania zawartości repozytorium
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # Pobiera kod z repozytorium
+
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/gitHubActionsRole
+          aws-region: us-east-1  # Region AWS, w którym znajduje się Twój bucket
+
+      - name: Sync files to S3
+        run: |
+          aws s3 sync . s3://glodnykotchyba --delete  # Przesyła pliki do S3
