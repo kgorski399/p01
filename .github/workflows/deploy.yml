@@ -20,7 +20,7 @@ jobs:
       - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::123456789012:role/gitHubActionsRole
+          role-to-assume: arn:aws:iam::676206908438:role/gitHubActionsRole
           aws-region: us-east-1  # Region AWS, w którym znajduje się Twój bucket
 
       - name: Sync files to S3
