@@ -37,4 +37,5 @@ jobs:
 
       - name: Sync files to S3
         run: |
+          cd my_flutter_project 
           aws s3 sync build/web s3://glodnykotchyba --delete 
