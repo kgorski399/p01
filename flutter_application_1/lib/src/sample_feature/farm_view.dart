@@ -9,6 +9,8 @@ import 'package:gif/gif.dart';
 class FarmScreen extends StatefulWidget {
       static const routeName = '/farm';
 
+  const FarmScreen({super.key});
+
   @override
   _FarmScreenState createState() => _FarmScreenState();
 
@@ -18,7 +20,7 @@ class _FarmScreenState extends State<FarmScreen> with TickerProviderStateMixin {
   final List<Animal> animals = [];
   late Ticker _ticker;
 
-  final double farmSize = 500; 
+  final double farmSize = 400; 
 
   @override
   void initState() {
@@ -40,7 +42,7 @@ class _FarmScreenState extends State<FarmScreen> with TickerProviderStateMixin {
     }
 
     for (var animal in animals) {
-      animal.gifController.repeat(period: Duration(seconds: 2));
+      animal.gifController.repeat(period: const Duration(seconds: 2));
     }
 
     // Initialize Ticker to update positions continuously
@@ -66,17 +68,34 @@ class _FarmScreenState extends State<FarmScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: farmSize,
-        height: farmSize,
-        decoration: BoxDecoration(
-          color: Colors.green[100],  
-          border: Border.all(color: Colors.brown, width: 5),  
-          borderRadius: BorderRadius.circular(10),  
-        ),
-        child: Stack(
-          children: animals.map((animal) => _buildAnimal(animal)).toList(),
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            children: [
+              Text("Satisfaction level : 100"),
+              Container(
+                width: farmSize,
+                height: farmSize,
+                decoration: BoxDecoration(
+                  color: Colors.green[100],  
+                  border: Border.all(color: Colors.brown, width: 5),  
+                  borderRadius: BorderRadius.circular(10),  
+                ),
+                child: Stack(
+                  children: animals.map((animal) => _buildAnimal(animal)).toList(),
+                ),
+              ),
+              SizedBox(height: 20,),
+              Text('Last fed: ${DateTime.now()}'),
+                            SizedBox(height: 10,),
+
+              Text('Last watered : ${DateTime.now()}'),
+              SizedBox(height: 20,),
+
+              FeedingWidget()
+            ],
+          ),
         ),
       ),
     );
@@ -96,7 +115,7 @@ class _FarmScreenState extends State<FarmScreen> with TickerProviderStateMixin {
         controller: animal.gifController,
         autostart: Autostart.no,  // Control GIF manually
         onFetchCompleted: () {
-          animal.gifController.repeat(period: Duration(seconds: 2));
+          animal.gifController.repeat(period: const Duration(seconds: 2));
         },
         placeholder: (context) => Container(height: 100, width: 100, color: Colors.grey,),
       ),
@@ -164,5 +183,134 @@ void move(Size boundary) {
       case AnimalType.dog:
         return 'assets/images/dog.gif';
     }
+  }
+}
+
+
+
+
+class FeedingWidget extends StatefulWidget {
+  const FeedingWidget({super.key});
+
+  @override
+  _FeedingWidgetState createState() => _FeedingWidgetState();
+}
+
+class _FeedingWidgetState extends State<FeedingWidget> {
+  bool foodInBowl = false;
+  bool waterInBowl = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            DragTarget<String>(
+              builder: (context, candidateData, rejectedData) {
+                return Bowl(
+                  isFull: foodInBowl,
+                  label: 'Food',
+                  icon: Icons.restaurant,
+                  color: Colors.orange,
+                );
+              },
+              onAccept: (data) {
+                if (data == 'food') {
+                  setState(() {
+                    foodInBowl = true;
+                  });
+                }
+              },
+            ),
+            SizedBox(width: 50,),
+            DragTarget<String>(
+              builder: (context, candidateData, rejectedData) {
+                return Bowl(
+                  isFull: waterInBowl,
+                  label: 'Water',
+                  icon: Icons.local_drink,
+                  color: Colors.blue,
+                );
+              },
+              onAccept: (data) {
+                if (data == 'water') {
+                  setState(() {
+                    waterInBowl = true;
+                  });
+                }
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 50),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Draggable<String>(
+              data: 'food',
+              feedback: Material(
+                child: Icon(Icons.local_pizza, size: 50, color: Colors.orange),
+                elevation: 5.0,
+              ),
+              child: Icon(Icons.local_pizza, size: 50, color: Colors.orange),
+            ),
+            Draggable<String>(
+              data: 'water',
+              feedback: Material(
+                child: Icon(Icons.local_drink, size: 50, color: Colors.blue),
+                elevation: 5.0,
+              ),
+              child: Icon(Icons.local_drink, size: 50, color: Colors.blue),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class Bowl extends StatelessWidget {
+  final bool isFull;
+  final String label;
+  final IconData icon;
+  final Color color;
+
+  Bowl({super.key, required this.isFull, required this.label, required this.icon, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          height: 80,
+          width: 80,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isFull
+                  ? [color.withOpacity(0.6), color]
+                  : [Colors.grey[300]!, Colors.grey[500]!],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(60),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10.0,
+                offset: Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Icon(icon, size: 60, color: Colors.white),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      ],
+    );
   }
 }
