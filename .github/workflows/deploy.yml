@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - dev 
+    paths:
+      - 'flutter_application_1/**' 
 
 jobs:
   deploy:
