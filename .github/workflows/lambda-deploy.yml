@@ -42,7 +42,7 @@ jobs:
     - name: Terraform Init, Plan, and Apply
       run: |
         cd terraform/dev
-        ls -la ../lambdas/testlambda
+        ls -la /lambdas/testlambda
         terraform init
         terraform plan -var="zip_hash=${{ env.hash }}"
         terraform apply -auto-approve -var="zip_hash=${{ env.hash }}"
