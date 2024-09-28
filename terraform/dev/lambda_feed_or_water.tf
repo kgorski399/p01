@@ -4,7 +4,7 @@ variable "zip_hash_feed_or_water" {
   type = string
 }
 
-resource "aws_lambda_function" "my_lambda" {
+resource "aws_lambda_function" "feed_or_water_function" {
   function_name = "feed_or_water_function"
   handler       = "lambda.lambda_handler"
   runtime       = "python3.12"
