@@ -38,13 +38,11 @@ jobs:
       with:
         role-to-assume:  arn:aws:iam::676206908438:role/gitHubActionsRole
         aws-region: "us-east-1"
-    - name: Check if ZIP exists
-      run: |
-        ls -la lambdas/testlambda/
 
     - name: Terraform Init, Plan, and Apply
       run: |
         cd terraform/dev
+        ls -la ../lambdas/testlambda
         terraform init
         terraform plan -var="zip_hash=${{ env.hash }}"
         terraform apply -auto-approve -var="zip_hash=${{ env.hash }}"
