@@ -29,7 +29,7 @@ jobs:
     - name: Calculate ZIP hash
       id: calculate_hash  
       run: |
-        HASH_VALUE=$(sha256sum lambdas/testlambda/lambda_function.zip | cut -d ' ' -f 1)  # Obliczanie hasha raz
+        HASH_VALUE=$(sha256sum lambdas/testlambda/lambda_function.zip | cut -d ' ' -f 1)  # to see if lambda changed
         echo "Calculated hash: $HASH_VALUE"
         echo "::set-output name=hash::$HASH_VALUE" 
 
