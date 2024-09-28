@@ -1,0 +1,47 @@
+name: Deploy Lambda with Terraform
+
+on:
+  push:
+    branches:
+      - lambda-test-cicd
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    - name: Zip Lambda Function
+      id: zip_lambda  
+      run: |
+        cd lambdas/testlambda
+        zip lambda_function.zip lambda.py
+
+    - name: Calculate ZIP hash
+      id: calculate_hash  
+      run: |
+        HASH_VALUE=$(sha256sum lambdas/testlambda/lambda_function.zip | cut -d ' ' -f 1)  # Obliczanie hasha raz
+        echo "Calculated hash: $HASH_VALUE"
+        echo "::set-output name=hash::$HASH_VALUE" 
+
+    - name: Configure AWS credentials with OIDC
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume:  arn:aws:iam::676206908438:role/gitHubActionsRole
+        aws-region: "us-east-1"
+
+    - name: Terraform Init, Plan, and Apply
+      run: |
+        cd terraform
+        terraform init
+        terraform plan -var="zip_hash=${{ steps.calculate_hash.outputs.hash }}"
+        terraform apply -auto-approve -var="zip_hash=${{ steps.calculate_hash.outputs.hash }}"
