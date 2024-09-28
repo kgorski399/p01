@@ -39,6 +39,9 @@ jobs:
         role-to-assume:  arn:aws:iam::676206908438:role/gitHubActionsRole
         aws-region: "us-east-1"
 
+    - name: Check file permissions
+      run: ls -la lambdas/testlambda/
+      
     - name: Terraform Init, Plan, and Apply
       run: |
         cd terraform/dev
