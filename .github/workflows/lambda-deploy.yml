@@ -29,9 +29,9 @@ jobs:
     - name: Calculate ZIP hash
       id: calculate_hash  
       run: |
-        HASH_VALUE=$(sha256sum lambdas/testlambda/lambda_function.zip | cut -d ' ' -f 1)  # to see if lambda changed
-        echo "Calculated hash: $HASH_VALUE"
-        echo "::set-output name=hash::$HASH_VALUE" 
+        HASH_VALUE=$(sha256sum lambdas/testlambda/lambda_function.zip | cut -d ' ' -f 1)
+        echo "hash=$HASH_VALUE" >> $GITHUB_ENV
+
 
     - name: Configure AWS credentials with OIDC
       uses: aws-actions/configure-aws-credentials@v2
@@ -43,5 +43,6 @@ jobs:
       run: |
         cd terraform/dev
         terraform init
-        terraform plan -var="zip_hash=${{ steps.calculate_hash.outputs.hash }}"
-        terraform apply -auto-approve -var="zip_hash=${{ steps.calculate_hash.outputs.hash }}"
+        terraform plan -var="zip_hash=${{ env.hash }}"
+        terraform apply -auto-approve -var="zip_hash=${{ env.hash }}"
+
