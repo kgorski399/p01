@@ -41,7 +41,7 @@ jobs:
 
     - name: Terraform Init, Plan, and Apply
       run: |
-        cd terraform
+        cd terraform/dev
         terraform init
         terraform plan -var="zip_hash=${{ steps.calculate_hash.outputs.hash }}"
         terraform apply -auto-approve -var="zip_hash=${{ steps.calculate_hash.outputs.hash }}"
