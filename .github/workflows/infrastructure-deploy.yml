@@ -41,4 +41,3 @@ jobs:
         cd terraform/dev
         terraform apply -auto-approve tfplan
 
-timeout-minutes: 20  # Cały proces musi się zakończyć w 20 minut
