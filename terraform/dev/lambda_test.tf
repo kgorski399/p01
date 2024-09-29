@@ -5,7 +5,7 @@ provider "aws" {
 
 
 
-variable "zip_hash" {
+variable "zip_hash_test" {
   type = string
 }
 
@@ -17,5 +17,5 @@ resource "aws_lambda_function" "my_lambda" {
   filename      = "${path.module}/../../lambdas/testlambda/lambda_function.zip"
 
   # use hash from output GA variable
-  source_code_hash = "${var.zip_hash}"
+  source_code_hash = "${var.zip_hash_test}"
 }
