@@ -25,9 +25,9 @@ jobs:
       id: zip_lambdas  
       run: |
         cd lambdas/testlambda
-        zip -X lambda_function.zip lambda.py
+        zip -X -D lambda_function.zip lambda.py
         cd ../feed_or_water
-        zip -X feed_or_water.zip feed_or_water.py
+        zip -X -D feed_or_water.zip feed_or_water.py
 
     - name: Calculate ZIP hashes
       id: calculate_hashes  
