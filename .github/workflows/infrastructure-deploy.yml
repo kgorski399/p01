@@ -3,7 +3,7 @@ name: Deploy architecture with Terraform
 on:
   push:
     branches:
-      - change_zip_logic_for_lambdas
+      - dev
 
 jobs:
   deploy:
