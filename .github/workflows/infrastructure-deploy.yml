@@ -3,15 +3,16 @@ name: Deploy architecture with Terraform
 on:
   push:
     branches:
-      - change_zip_logic_for_lambdas
+      - dev
 
 jobs:
-  plan:
+  deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5 
+
     permissions:
-      contents: read  
       id-token: write
+      contents: read
 
     steps:
     - name: Checkout code
@@ -23,47 +24,12 @@ jobs:
     - name: Configure AWS credentials with OIDC
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::676206908438:role/gitHubActionsRole  
+        role-to-assume:  arn:aws:iam::676206908438:role/gitHubActionsRole
         aws-region: "us-east-1"
 
-    - name: Terraform Init and Plan
+    - name: Terraform Init, Plan, and Apply
       run: |
         cd terraform/dev
         terraform init
-        terraform plan -out=tfplan
-
-  manual_approval:
-    needs: plan
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write 
-
-    steps:
-    - name: Await manual approval
-      uses: trstringer/manual-approval@v1
-      with:
-        secret: ${{ github.TOKEN }}
-        approvers: kgorski399
-        body: |
-          Terraform plan output:
-
-          ${{ env.PLAN }}
-
-  apply:
-    needs: manual_approval
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read  
-      id-token: write
-
-    steps:
-    - name: Configure AWS credentials with OIDC
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: arn:aws:iam::676206908438:role/gitHubActionsRole  
-        aws-region: "us-east-1"
-
-    - name: Terraform Apply
-      run: |
-        terraform apply -auto-approve tfplan
+        terraform plan
+        terraform apply -auto-approve
