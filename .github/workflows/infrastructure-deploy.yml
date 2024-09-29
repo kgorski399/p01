@@ -9,6 +9,10 @@ jobs:
   plan:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read  # Zmienione na read, bo nie potrzebujesz zapisu
+      id-token: write
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -31,13 +35,24 @@ jobs:
   deploy:
     needs: plan
     runs-on: ubuntu-latest
-    timeout-minutes: 10 
+    timeout-minutes: 10
+    permissions:
+      contents: read  # Zmienione na read, bo nie potrzebujesz zapisu
+      id-token: write
+
     steps:
+    - name: Configure AWS credentials with OIDC
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::676206908438:role gitHubActionsRole
+        aws-region: "us-east-1"
+
     - name: Wait for approval
-      run: echo "Waiting for manual approval..."
+      uses: hmarr/auto-approve-action@v2
+      with:
+        comment: "Please approve the deployment."
 
     - name: Apply Terraform changes
       run: |
         cd terraform/dev
         terraform apply -auto-approve tfplan
-
