@@ -35,6 +35,9 @@ jobs:
   manual_approval:
     needs: plan
     runs-on: ubuntu-latest
+    permissions:
+      issues: write 
+
     steps:
     - name: Await manual approval
       uses: trstringer/manual-approval@v1
@@ -45,6 +48,7 @@ jobs:
           Terraform plan output:
 
           ${{ env.PLAN }}
+
   apply:
     needs: manual_approval
     runs-on: ubuntu-latest
