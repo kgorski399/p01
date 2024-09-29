@@ -35,6 +35,10 @@ jobs:
   manual_approval:
     needs: plan
     runs-on: ubuntu-latest
+    permissions:
+      issues: write  # Ensure this permission is present
+      contents: read  
+      id-token: write
     steps:
     - name: Await manual approval
       uses: trstringer/manual-approval@v1
