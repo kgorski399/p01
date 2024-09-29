@@ -1,4 +1,4 @@
-name: Deploy Lambda with Terraform
+name: Deploy architecture with Terraform
 
 on:
   push:
@@ -21,34 +21,15 @@ jobs:
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v2
 
-    - name: Zip Lambda Functions
-      id: zip_lambdas  
-      run: |
-        cd lambdas/testlambda
-        zip -X -D lambda_function.zip lambda.py
-        cd ../feed_or_water
-        zip -X -D feed_or_water.zip feed_or_water.py
-
-    - name: Calculate ZIP hashes
-      id: calculate_hashes  
-      run: |
-        HASH_TEST=$(sha256sum lambdas/testlambda/lambda_function.zip | cut -d ' ' -f 1)
-        echo "hash_test=$HASH_TEST" >> $GITHUB_ENV
-        HASH_FEED_OR_WATER=$(sha256sum lambdas/feed_or_water/feed_or_water.zip | cut -d ' ' -f 1)
-        echo "hash_feed_or_water=$HASH_FEED_OR_WATER" >> $GITHUB_ENV
-
     - name: Configure AWS credentials with OIDC
       uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume:  arn:aws:iam::676206908438:role/gitHubActionsRole
         aws-region: "us-east-1"
 
-    - name: Check file permissions
-      run: ls -la lambdas/testlambda/
-
     - name: Terraform Init, Plan, and Apply
       run: |
         cd terraform/dev
         terraform init
-        terraform plan -var="zip_hash_test=${{ env.hash_test }}" -var="zip_hash_feed_or_water=${{ env.hash_feed_or_water }}"
-        terraform apply -auto-approve -var="zip_hash_test=${{ env.hash_test }}" -var="zip_hash_feed_or_water=${{ env.hash_feed_or_water }}"
+        terraform plan
+        terraform apply -auto-approve
