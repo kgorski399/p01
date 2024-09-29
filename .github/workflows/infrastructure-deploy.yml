@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: read  # Zmienione na read, bo nie potrzebujesz zapisu
+      contents: read  
       id-token: write
 
     steps:
@@ -37,14 +37,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: read  # Zmienione na read, bo nie potrzebujesz zapisu
+      contents: read  
       id-token: write
 
     steps:
     - name: Configure AWS credentials with OIDC
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::676206908438:role gitHubActionsRole
+        role-to-assume: arn:aws:iam::676206908438:role/gitHubActionsRole
         aws-region: "us-east-1"
 
     - name: Wait for approval
