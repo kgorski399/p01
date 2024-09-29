@@ -5,6 +5,8 @@ on:
     branches:
       - change_zip_logic_for_lambdas
 
+  workflow_dispatch: # Manual approval trigger
+
 jobs:
   plan:
     runs-on: ubuntu-latest
@@ -32,8 +34,16 @@ jobs:
         terraform init
         terraform plan -out=tfplan
 
-  deploy:
+  manual_approval:
     needs: plan
+    runs-on: ubuntu-latest
+    steps:
+    - name: Await manual approval
+      run: echo "Please manually approve the deployment after reviewing the plan."
+      timeout-minutes: 60 # Sets how long you have to approve the deployment
+
+  deploy:
+    needs: manual_approval
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -46,11 +56,6 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::676206908438:role/gitHubActionsRole
         aws-region: "us-east-1"
-
-    - name: Wait for approval
-      uses: hmarr/auto-approve-action@v2
-      with:
-        comment: "Please approve the deployment."
 
     - name: Apply Terraform changes
       run: |
