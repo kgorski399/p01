@@ -4,18 +4,17 @@ provider "aws" {
 }
 
 
-
-variable "zip_hash_test" {
-  type = string
+data "archive_file" "testlambda_code" {
+  type        = "zip"
+  source_dir  = "${path.module}/../../lambdas/testlambda"
+  output_path = "${path.module}/../../lambdas/testlambda.zip"
 }
 
 resource "aws_lambda_function" "my_lambda" {
-  function_name = "my_lambda_function"
-  handler       = "lambda.lambda_handler"
-  runtime       = "python3.12"
-  role          = aws_iam_role.lambda_role.arn
-  filename      = "${path.module}/../../lambdas/testlambda/lambda_function.zip"
-
-  # use hash from output GA variable
-  source_code_hash = "${var.zip_hash_test}"
+  function_name    = "my_lambda_function"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "lambda.lambda_handler"
+  source_code_hash = data.archive_file.testlambda_code.output_base64sha256
+  runtime          = "python3.12"
+  filename         = data.archive_file.testlambda_code.output_path
 }
