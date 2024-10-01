@@ -4,7 +4,7 @@
 resource "aws_lambda_function" "get_data_lambda" {
   function_name    = "get_data"
   role             = aws_iam_role.lambda_role.arn
-  handler          = "lambda.lambda_handler"
+  handler          = "get_data.lambda_handler"
   source_code_hash = data.archive_file.get_data_code.output_base64sha256
   runtime          = "python3.12"
   filename         = data.archive_file.get_data_code.output_path
