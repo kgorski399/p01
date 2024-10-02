@@ -1,14 +1,10 @@
 
-
 resource "aws_dynamodb_table" "farm" {
   name         = "Farm"
-  billing_mode = "PROVISIONED" # Ustawiony tryb provisioned
-
-
-  read_capacity  = 1  # Liczba odczytów na sekundę
-  write_capacity = 1  # Liczba zapisów na sekundę
-
-  hash_key = "farm_id"  # Klucz partycji
+  billing_mode = "PROVISIONED"
+  read_capacity  = 1
+  write_capacity = 1
+  hash_key = "farm_id"
 
   attribute {
     name = "farm_id"

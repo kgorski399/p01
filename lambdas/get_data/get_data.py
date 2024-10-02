@@ -2,16 +2,19 @@ import json
 import boto3
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+ssm = boto3.client('ssm')
 table = dynamodb.Table('Farm')
 
+def get_farm_id():
+    response = ssm.get_parameter(Name='farm_id')
+    return response['Parameter']['Value']
+
 def lambda_handler(event, context):
-    farm_id = event['queryStringParameters']['farm_id']  
-    
+    farm_id = get_farm_id()
+
     try:
-        response = table.get_item(
-            Key={'farm_id': farm_id}
-        )
-        
+        response = table.get_item(Key={'farm_id': farm_id})
+
         if 'Item' not in response:
             return {
                 "statusCode": 404,
@@ -30,7 +33,7 @@ def lambda_handler(event, context):
                 "last_fed": feed_date
             })
         }
-    
+
     except Exception as e:
         return {
             "statusCode": 500,

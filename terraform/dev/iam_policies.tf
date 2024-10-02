@@ -1,6 +1,6 @@
 resource "aws_iam_policy" "lambda_dynamodb_policy" {
   name        = "LambdaDynamoDBPolicy"
-  description = "Allow Lambda to access and modify DynamoDB table"
+  description = "Allow Lambda to access and modify DynamoDB table and read from Parameter Store"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -12,7 +12,14 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
           "dynamodb:PutItem",
           "dynamodb:UpdateItem"
         ],
-        Resource = "arn:aws:dynamodb:us-east-1:676206908438:table/Farm"
+        Resource = "${aws_dynamodb_table.farm.arn}"  
+      },
+      {
+        Effect   = "Allow",
+        Action   = [
+          "ssm:GetParameter"
+        ],
+        Resource = "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/farm_id"  
       }
     ]
   })
