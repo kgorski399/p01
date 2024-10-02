@@ -1,7 +1,3 @@
-# Provider AWS
-provider "aws" {
-  region = "us-east-1" 
-}
 
 
 data "archive_file" "testlambda_code" {
