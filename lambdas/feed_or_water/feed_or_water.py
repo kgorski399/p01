@@ -3,10 +3,16 @@ import boto3
 from datetime import datetime
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+ssm = boto3.client('ssm')
 table = dynamodb.Table('Farm')
 
+def get_farm_id():
+    response = ssm.get_parameter(Name='farm_id')
+    return response['Parameter']['Value']
+
 def lambda_handler(event, context):
-    farm_id = event['farm_id']  
+    farm_id = get_farm_id()
+    
     action = event.get('action') 
 
     if action == 'water':
@@ -30,4 +36,3 @@ def lambda_handler(event, context):
         "statusCode": 200,
         "body": json.dumps(f"Successfully updated {update_field}")
     }
-
