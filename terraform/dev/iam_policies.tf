@@ -6,20 +6,20 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "dynamodb:GetItem",
           "dynamodb:PutItem",
           "dynamodb:UpdateItem"
         ],
-        Resource = "${aws_dynamodb_table.farm.arn}"  
+        Resource = "${aws_dynamodb_table.farm.arn}"
       },
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "ssm:GetParameter"
         ],
-        Resource = "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/farm_id"  
+        Resource = "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/farm_id"
       }
     ]
   })
