@@ -25,3 +25,8 @@ override.tf.json
 # Ignore sensitive or local settings for CLI configuration
 .terraformrc
 terraform.rc
+
+#app
+
+flutter_application_1/lib/config.dart
+

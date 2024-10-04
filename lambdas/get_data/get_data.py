@@ -18,6 +18,10 @@ def lambda_handler(event, context):
         if 'Item' not in response:
             return {
                 "statusCode": 404,
+                "headers": {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
                 "body": json.dumps("Farm not found")
             }
 
@@ -27,6 +31,10 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
+            "headers": {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
             "body": json.dumps({
                 "farm_id": farm_id,
                 "last_watered": water_date,
@@ -37,5 +45,9 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             "statusCode": 500,
+            "headers": {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
             "body": json.dumps(f"Error retrieving data: {str(e)}")
         }

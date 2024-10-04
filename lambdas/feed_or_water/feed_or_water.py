@@ -12,8 +12,8 @@ def get_farm_id():
 
 def lambda_handler(event, context):
     farm_id = get_farm_id()
-    
-    action = event.get('action') 
+
+    action = event.get('queryStringParameters', {}).get('action') 
 
     if action == 'water':
         update_field = 'waterDate'
@@ -22,9 +22,14 @@ def lambda_handler(event, context):
     else:
         return {
             "statusCode": 400,
+            "headers": {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
             "body": json.dumps("Invalid action. Please specify 'water' or 'feed'.")
         }
 
+    # Aktualizacja DynamoDB z nową datą
     response = table.update_item(
         Key={'farm_id': farm_id},
         UpdateExpression=f"SET {update_field} = :date",
@@ -34,5 +39,9 @@ def lambda_handler(event, context):
     
     return {
         "statusCode": 200,
+        "headers": {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json'
+        },
         "body": json.dumps(f"Successfully updated {update_field}")
     }
