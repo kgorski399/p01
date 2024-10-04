@@ -1,42 +1,41 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_application_1/src/repositories/farm_repo.dart';
+import 'package:flutter_application_1/src/sample_feature/cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gif/gif.dart';
 
-
-
 class FarmScreen extends StatefulWidget {
-      static const routeName = '/farm';
+  static const routeName = '/farm';
 
   const FarmScreen({super.key});
 
   @override
   _FarmScreenState createState() => _FarmScreenState();
-
 }
 
 class _FarmScreenState extends State<FarmScreen> with TickerProviderStateMixin {
   final List<Animal> animals = [];
   late Ticker _ticker;
 
-  final double farmSize = 400; 
+  final double farmSize = 400;
 
   @override
   void initState() {
     super.initState();
 
-    // Initialize each animal with its own GifController and random positions
     for (int i = 0; i < 10; i++) {
       animals.add(Animal(
         position: Offset(
-            Random().nextDouble() * (farmSize - 110), // Ensure random start within bounds
+            Random().nextDouble() *
+                (farmSize - 110), 
             Random().nextDouble() * (farmSize - 110)),
-        velocity: Offset(
-            (Random().nextDouble() * 2 - 1) * 1.5,
+        velocity: Offset((Random().nextDouble() * 2 - 1) * 1.5,
             (Random().nextDouble() * 2 - 1) * 1.5),
         size: 100,
-        animalType: AnimalType.values[Random().nextInt(AnimalType.values.length)],
+        animalType:
+            AnimalType.values[Random().nextInt(AnimalType.values.length)],
         gifController: GifController(vsync: this),
       ));
     }
@@ -45,11 +44,10 @@ class _FarmScreenState extends State<FarmScreen> with TickerProviderStateMixin {
       animal.gifController.repeat(period: const Duration(seconds: 2));
     }
 
-    // Initialize Ticker to update positions continuously
     _ticker = createTicker((Duration elapsed) {
       setState(() {
         for (var animal in animals) {
-          animal.move(Size(farmSize, farmSize)); 
+          animal.move(Size(farmSize, farmSize));
         }
       });
     });
@@ -68,56 +66,112 @@ class _FarmScreenState extends State<FarmScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            children: [
-              Text("Satisfaction level : 100"),
-              Container(
-                width: farmSize,
-                height: farmSize,
-                decoration: BoxDecoration(
-                  color: Colors.green[100],  
-                  border: Border.all(color: Colors.brown, width: 5),  
-                  borderRadius: BorderRadius.circular(10),  
-                ),
-                child: Stack(
-                  children: animals.map((animal) => _buildAnimal(animal)).toList(),
+    return BlocProvider(
+      create: (context) => FarmCubit(ApiRepositoryImpl())..loadFarmData(),
+      child: Scaffold(
+        body: BlocBuilder<FarmCubit, FarmState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return SingleChildScrollView(
+              child: Center(
+                child: Column(
+                  children: [
+                    const Text("Satisfaction level : 100"),
+                    Container(
+                      width: farmSize,
+                      height: farmSize,
+                      decoration: BoxDecoration(
+                        color: Colors.green[100],
+                        border: Border.all(color: Colors.brown, width: 5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Stack(
+                        children: animals
+                            .map((animal) => _buildAnimal(animal))
+                            .toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+    
+                    Text(
+                        'Last fed: ${state.lastFed.isNotEmpty ? state.lastFed : "Loading..."}'),
+                    const SizedBox(height: 10),
+                    Text(
+                        'Last watered: ${state.lastWatered.isNotEmpty ? state.lastWatered : "Loading..."}'),
+                    const SizedBox(height: 20),
+
+                    ElevatedButton(
+                      onPressed: state.isUpdating
+                          ? null
+                          : () {
+                              context.read<FarmCubit>().feedOrWater('feed');
+                            },
+                      child: state.isUpdating
+                          ? const CircularProgressIndicator() 
+                          : const Text('Feed Animal'),
+                    ),
+                    const SizedBox(height: 10),
+
+                    ElevatedButton(
+                      onPressed: state.isUpdating
+                          ? null
+                          : () {
+                              context.read<FarmCubit>().feedOrWater('water');
+                            },
+                      child: state.isUpdating
+                          ? const CircularProgressIndicator() 
+                          : const Text('Water Animal'),
+                    ),
+                    const SizedBox(height: 20),
+
+           
+                    if (state.message != null)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(state.message!),
+                      ),
+                    if (state.error != null &&
+                        state.error!
+                            .isNotEmpty) 
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('Error: ${state.error}',
+                            style: const TextStyle(color: Colors.red)),
+                      ),
+
+                    const SizedBox(height: 20),
+                    const FeedingWidget(),
+                  ],
                 ),
               ),
-              SizedBox(height: 20,),
-              Text('Last fed: ${DateTime.now()}'),
-                            SizedBox(height: 10,),
-
-              Text('Last watered : ${DateTime.now()}'),
-              SizedBox(height: 20,),
-
-              FeedingWidget()
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
   }
 
   Widget _buildAnimal(Animal animal) {
-    return
-     Positioned(
+    return Positioned(
       left: animal.position.dx,
       top: animal.position.dy,
-      child:
-      // Container(height: 100, width: 100, color: Colors.grey,child: Text('${animal.position.dy}'),)
-       Gif(
+      child: Gif(
         height: 100,
         width: 100,
         image: AssetImage(animal.getGifAsset()),
         controller: animal.gifController,
-        autostart: Autostart.no,  // Control GIF manually
+        autostart: Autostart.no, 
         onFetchCompleted: () {
           animal.gifController.repeat(period: const Duration(seconds: 2));
         },
-        placeholder: (context) => Container(height: 100, width: 100, color: Colors.grey,),
+        placeholder: (context) => Container(
+          height: 100,
+          width: 100,
+          color: Colors.grey,
+        ),
       ),
     );
   }
@@ -140,37 +194,31 @@ class Animal {
     required this.gifController,
   });
 
-void move(Size boundary) {
-  position += velocity;
+  void move(Size boundary) {
+    position += velocity;
 
-  // Left boundary
-  if (position.dx < 0) {
-    position = Offset(0, position.dy);
-    velocity = Offset(-velocity.dx, velocity.dy);
+    // Left boundary
+    if (position.dx < 0) {
+      position = Offset(0, position.dy);
+      velocity = Offset(-velocity.dx, velocity.dy);
+    }
+
+    // Right boundary considering the size of the animal
+    if (position.dx + 10 > boundary.width - size) {
+      velocity = Offset(-velocity.dx, velocity.dy);
+    }
+
+    // Top boundary
+    if (position.dy < 0) {
+      position = Offset(position.dx, 0);
+      velocity = Offset(velocity.dx, -velocity.dy);
+    }
+
+    // Bottom boundary considering the size of the animal
+    if (position.dy + 10 > boundary.height - size) {
+      velocity = Offset(velocity.dx, -velocity.dy);
+    }
   }
-
-  // Right boundary considering the size of the animal
-  if (position.dx +10  > boundary.width - size) {
-    velocity = Offset(-velocity.dx, velocity.dy);
-  }
-
-  // Top boundary
-  if (position.dy < 0) {
-    position = Offset(position.dx, 0);
-    velocity = Offset(velocity.dx, -velocity.dy);
-  }
-
-  // Bottom boundary considering the size of the animal
-  if (position.dy +10  > boundary.height - size) {
-    velocity = Offset(velocity.dx, -velocity.dy);
-  }
-}
-
-
-
-
-
-
 
   String getGifAsset() {
     switch (animalType) {
@@ -185,9 +233,6 @@ void move(Size boundary) {
     }
   }
 }
-
-
-
 
 class FeedingWidget extends StatefulWidget {
   const FeedingWidget({super.key});
@@ -225,7 +270,9 @@ class _FeedingWidgetState extends State<FeedingWidget> {
                 }
               },
             ),
-            SizedBox(width: 50,),
+            SizedBox(
+              width: 50,
+            ),
             DragTarget<String>(
               builder: (context, candidateData, rejectedData) {
                 return Bowl(
@@ -252,16 +299,16 @@ class _FeedingWidgetState extends State<FeedingWidget> {
             Draggable<String>(
               data: 'food',
               feedback: Material(
-                child: Icon(Icons.local_pizza, size: 50, color: Colors.orange),
                 elevation: 5.0,
+                child: Icon(Icons.local_pizza, size: 50, color: Colors.orange),
               ),
               child: Icon(Icons.local_pizza, size: 50, color: Colors.orange),
             ),
             Draggable<String>(
               data: 'water',
               feedback: Material(
-                child: Icon(Icons.local_drink, size: 50, color: Colors.blue),
                 elevation: 5.0,
+                child: Icon(Icons.local_drink, size: 50, color: Colors.blue),
               ),
               child: Icon(Icons.local_drink, size: 50, color: Colors.blue),
             ),
@@ -278,7 +325,12 @@ class Bowl extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  Bowl({super.key, required this.isFull, required this.label, required this.icon, required this.color});
+  Bowl(
+      {super.key,
+      required this.isFull,
+      required this.label,
+      required this.icon,
+      required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -309,7 +361,8 @@ class Bowl extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        Text(label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
       ],
     );
   }

@@ -15,19 +15,28 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   gif: ^2.3.0
+  dio: 
+  retrofit: 
+  json_annotation: ^4.4.0
+  built_value: ^8.0.4
+  built_collection: ^5.0.0
+  flutter_bloc: ^8.1.6
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  retrofit_generator: 
+  build_runner: 
+  built_value_generator: ^8.0.4
 
-  flutter_lints: ^4.0.0
+
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true
 
-  # Enable generation of localized Strings from arb files.
   generate: true
 
   assets:
-    # Add assets from the images directory to the application.
     - assets/images/

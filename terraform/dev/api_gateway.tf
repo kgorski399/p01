@@ -4,6 +4,7 @@ resource "aws_api_gateway_rest_api" "farm_api" {
   endpoint_configuration {
     types = ["REGIONAL"]
   }
+  
 }
 
 
@@ -41,6 +42,7 @@ resource "aws_api_gateway_integration" "get_data_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.get_data_lambda.invoke_arn
+passthrough_behavior = "WHEN_NO_MATCH"
 }
 
 resource "aws_api_gateway_integration" "feed_or_water_integration" {
@@ -50,6 +52,7 @@ resource "aws_api_gateway_integration" "feed_or_water_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.feed_or_water_function.invoke_arn
+passthrough_behavior = "WHEN_NO_MATCH"
 }
 
 
