@@ -6,6 +6,8 @@ on:
       - dev
     paths:
       - 'flutter_application_1/**'
+  workflow_dispatch:  
+    
 
 
 jobs:
