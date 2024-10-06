@@ -4,7 +4,7 @@ resource "aws_api_gateway_rest_api" "farm_api" {
   endpoint_configuration {
     types = ["REGIONAL"]
   }
-  
+
 }
 
 
@@ -42,7 +42,7 @@ resource "aws_api_gateway_integration" "get_data_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.get_data_lambda.invoke_arn
-passthrough_behavior = "WHEN_NO_MATCH"
+  passthrough_behavior    = "WHEN_NO_MATCH"
 }
 
 resource "aws_api_gateway_integration" "feed_or_water_integration" {
@@ -52,7 +52,7 @@ resource "aws_api_gateway_integration" "feed_or_water_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.feed_or_water_function.invoke_arn
-passthrough_behavior = "WHEN_NO_MATCH"
+  passthrough_behavior    = "WHEN_NO_MATCH"
 }
 
 
@@ -81,4 +81,33 @@ resource "aws_api_gateway_deployment" "farm_api_deployment" {
     aws_api_gateway_integration.get_data_integration,
     aws_api_gateway_integration.feed_or_water_integration
   ]
+}
+
+
+resource "aws_api_gateway_usage_plan" "farm_api_usage_plan" {
+  name        = "FarmAPIUsagePlan"
+  description = "Usage plan for the Farm API"
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.farm_api.id
+    stage  = aws_api_gateway_deployment.farm_api_deployment.stage_name
+  }
+
+  throttle_settings {
+    burst_limit = 6
+    rate_limit  = 3
+  }
+
+  quota_settings {
+    limit  = 250
+    period = "DAY"
+  }
+}
+
+
+resource "aws_ssm_parameter" "api_gateway_id" {
+  name  = "api_id"     
+  type  = "String"            
+  value = aws_api_gateway_rest_api.farm_api.id
+  overwrite = true
 }
