@@ -29,7 +29,6 @@ def lambda_handler(event, context):
             "body": json.dumps("Invalid action. Please specify 'water' or 'feed'.")
         }
 
-    # Aktualizacja DynamoDB z nową datą
     response = table.update_item(
         Key={'farm_id': farm_id},
         UpdateExpression=f"SET {update_field} = :date",
