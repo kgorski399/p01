@@ -1,0 +1,9 @@
+name: No-op workflow
+on:
+  workflow_dispatch:
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "This is a no-op workflow."
