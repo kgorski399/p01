@@ -7,15 +7,12 @@ on:
     paths:
       - 'flutter_application_1/**'
   workflow_dispatch:  
-    
-
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     environment: dev
-
 
     permissions:
       id-token: write
@@ -28,7 +25,7 @@ jobs:
       - name: Create config.dart
         run: |
           mkdir -p flutter_application_1/lib
-          echo "static const apiUrl = '${{ secrets.APIGWLINK }}';" >> flutter_application_1/lib/config.dart
+          echo "const String API_BASE_URL = '${{ secrets.APIGWLINK }}';" >> flutter_application_1/lib/config.dart
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2

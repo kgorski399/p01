@@ -9,7 +9,7 @@ abstract class ApiRepository {
 class ApiRepositoryImpl implements ApiRepository {
   final Dio dio;
 
-  ApiRepositoryImpl() : dio = Dio(BaseOptions(baseUrl: ApiConfig.baseUrl));
+  ApiRepositoryImpl() : dio = Dio(BaseOptions(baseUrl: API_BASE_URL));
 
   @override
   Future<Map<String, dynamic>> getData() async {
