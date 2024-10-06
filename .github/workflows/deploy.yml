@@ -3,21 +3,31 @@ name: Deploy to S3 on dev branch
 on:
   push:
     branches:
-      - dev 
+      - dev
     paths:
-      - 'flutter_application_1/**' 
+      - 'flutter_application_1/**'
+
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    environment: dev
+
+
     permissions:
-      id-token: write 
-      contents: read  
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3 
+        uses: actions/checkout@v3
+
+      - name: Create config.dart
+        run: |
+          mkdir -p flutter_application_1/lib
+          echo "static const apiUrl = '${{ secrets.APIGWLINK }}';" >> flutter_application_1/lib/config.dart
+
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -25,20 +35,17 @@ jobs:
 
       - name: Build Flutter Web
         run: |
-          cd flutter_application_1  
-          flutter pub get       
-          flutter build web      
-
-
+          cd flutter_application_1
+          flutter pub get
+          flutter build web
 
       - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::676206908438:role/gitHubActionsRole
-          aws-region: us-east-1 
+          role-to-assume: ${{ secrets.GAROLE }}
+          aws-region: us-east-1
 
       - name: Sync files to S3
         run: |
-          ls -la
-          cd flutter_application_1 
-          aws s3 sync build/web s3://glodnykotchyba --delete 
+          cd flutter_application_1
+          aws s3 sync build/web s3://glodnykotchyba --delete
