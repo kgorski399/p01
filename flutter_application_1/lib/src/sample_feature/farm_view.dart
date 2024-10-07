@@ -69,13 +69,11 @@ class _FarmScreenState extends State<FarmScreen> with TickerProviderStateMixin {
   }
 
   void _updateAnimals(FarmState state) {
-    // Usuń istniejące zwierzęta
     for (var animal in animals) {
       animal.gifController.dispose();
     }
     animals.clear();
 
-    // Ponownie zainicjalizuj zwierzęta
     _initializeAnimals(state);
   }
 
