@@ -25,25 +25,6 @@ class _FarmScreenState extends State<FarmScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    for (int i = 0; i < 10; i++) {
-      animals.add(Animal(
-        position: Offset(
-            Random().nextDouble() *
-                (farmSize - 110), 
-            Random().nextDouble() * (farmSize - 110)),
-        velocity: Offset((Random().nextDouble() * 2 - 1) * 1.5,
-            (Random().nextDouble() * 2 - 1) * 1.5),
-        size: 100,
-        animalType:
-            AnimalType.values[Random().nextInt(AnimalType.values.length)],
-        gifController: GifController(vsync: this),
-      ));
-    }
-
-    for (var animal in animals) {
-      animal.gifController.repeat(period: const Duration(seconds: 2));
-    }
-
     _ticker = createTicker((Duration elapsed) {
       setState(() {
         for (var animal in animals) {
@@ -64,22 +45,69 @@ class _FarmScreenState extends State<FarmScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  void _initializeAnimals(FarmState state) {
+    int numberOfAnimals = int.parse(state.animalCount) ?? 0;
+
+    for (int i = 0; i < numberOfAnimals; i++) {
+      AnimalType type = _getRandomAnimalType();
+
+      Animal animal = Animal(
+        position: Offset(
+            Random().nextDouble() * (farmSize - 110),
+            Random().nextDouble() * (farmSize - 110)),
+        velocity: Offset((Random().nextDouble() * 2 - 1) * 1.5,
+            (Random().nextDouble() * 2 - 1) * 1.5),
+        size:   100,
+        animalType: type,
+        gifController: GifController(vsync: this),
+      );
+
+      animal.gifController.repeat(period: const Duration(seconds: 2));
+
+      animals.add(animal);
+    }
+  }
+
+  void _updateAnimals(FarmState state) {
+    // Usuń istniejące zwierzęta
+    for (var animal in animals) {
+      animal.gifController.dispose();
+    }
+    animals.clear();
+
+    // Ponownie zainicjalizuj zwierzęta
+    _initializeAnimals(state);
+  }
+
+  AnimalType _getRandomAnimalType() {
+    return AnimalType.values[Random().nextInt(AnimalType.values.length)];
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => FarmCubit(ApiRepositoryImpl())..loadFarmData(),
       child: Scaffold(
-        body: BlocBuilder<FarmCubit, FarmState>(
+        body: BlocConsumer<FarmCubit, FarmState>(
+          listener: (context, state) {
+            if (
+                int.parse(state.animalCount) != animals.length) {
+              _updateAnimals(state);
+            }
+          },
           builder: (context, state) {
             if (state.isLoading) {
               return const Center(child: CircularProgressIndicator());
+            }
+            if (animals.isEmpty) {
+              _initializeAnimals(state);
             }
 
             return SingleChildScrollView(
               child: Center(
                 child: Column(
                   children: [
-                    const Text("Satisfaction level : 100"),
+                     Text("Satisfaction level : ${state.satisfaction}"),
                     Container(
                       width: farmSize,
                       height: farmSize,
@@ -155,12 +183,14 @@ class _FarmScreenState extends State<FarmScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildAnimal(Animal animal) {
+
+    double size = animal.animalType == AnimalType.cat ? 50 : 100;
     return Positioned(
       left: animal.position.dx,
       top: animal.position.dy,
       child: Gif(
-        height: 100,
-        width: 100,
+        height: size,
+        width: size,
         image: AssetImage(animal.getGifAsset()),
         controller: animal.gifController,
         autostart: Autostart.no, 
@@ -177,7 +207,7 @@ class _FarmScreenState extends State<FarmScreen> with TickerProviderStateMixin {
   }
 }
 
-enum AnimalType { cow, pig, cat, dog }
+enum AnimalType {horse, cat, dog }
 
 class Animal {
   Offset position;
@@ -222,14 +252,13 @@ class Animal {
 
   String getGifAsset() {
     switch (animalType) {
-      case AnimalType.cow:
-        return 'assets/images/dog.gif';
-      case AnimalType.pig:
-        return 'assets/images/dog.gif';
-      case AnimalType.cat:
-        return 'assets/images/horse.gif';
       case AnimalType.dog:
         return 'assets/images/dog.gif';
+      case AnimalType.cat:
+        return 'assets/images/cat.gif';
+      case AnimalType.horse:
+        return 'assets/images/horse.gif';
+    
     }
   }
 }
