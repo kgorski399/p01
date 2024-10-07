@@ -1,5 +1,6 @@
 import json
 import boto3
+from decimal import Decimal 
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 ssm = boto3.client('ssm')
@@ -28,6 +29,11 @@ def lambda_handler(event, context):
         item = response['Item']
         water_date = item.get('waterDate', 'Not available')
         feed_date = item.get('feedDate', 'Not available')
+        satisfaction = item.get('satisfaction', 'Not available')
+        animal_count = item.get('animal_count')
+
+        satisfaction = int(satisfaction)
+        animal_count = int(animal_count)
 
         return {
             "statusCode": 200,
@@ -38,7 +44,9 @@ def lambda_handler(event, context):
             "body": json.dumps({
                 "farm_id": farm_id,
                 "last_watered": water_date,
-                "last_fed": feed_date
+                "last_fed": feed_date,
+                "satisfaction": satisfaction,
+                "animal_count": animal_count
             })
         }
 

@@ -106,8 +106,8 @@ resource "aws_api_gateway_usage_plan" "farm_api_usage_plan" {
 
 
 resource "aws_ssm_parameter" "api_gateway_id" {
-  name  = "api_id"     
-  type  = "String"            
-  value = aws_api_gateway_rest_api.farm_api.id
+  name      = "api_id"
+  type      = "String"
+  value     = aws_api_gateway_rest_api.farm_api.id
   overwrite = true
 }
