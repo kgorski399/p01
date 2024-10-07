@@ -7,16 +7,20 @@ class FarmState {
   final bool isUpdating;
   final String lastFed;
   final String lastWatered;
+  final String satisfaction;
   final String? message; 
-  final String? error; 
+  final String? error;
+  final String animalCount;
 
   const FarmState({
     this.isLoading = false,
     this.isUpdating = false,
+    this.satisfaction = '',
     this.lastFed = '',
     this.lastWatered = '',
     this.message,
     this.error,
+    this.animalCount = ''
   });
 
   FarmState copyWith({
@@ -25,7 +29,9 @@ class FarmState {
     String? lastFed,
     String? lastWatered,
     String? message,
+    String? satisfaction,
     String? error,
+    String? animalCount
   }) {
     return FarmState(
       isLoading: isLoading ?? this.isLoading,
@@ -34,11 +40,12 @@ class FarmState {
       lastWatered: lastWatered ?? this.lastWatered,
       message: message ?? this.message,
       error: error ?? this.error,
+      satisfaction: satisfaction ?? this.satisfaction,
+      animalCount: animalCount ?? this.animalCount
     );
   }
 }
 
-// Cubit
 class FarmCubit extends Cubit<FarmState> {
   final ApiRepository apiRepository;
 
@@ -52,8 +59,10 @@ class FarmCubit extends Cubit<FarmState> {
       final data = await apiRepository.getData();
       emit(state.copyWith(
         isLoading: false,
+        satisfaction: '${data['satisfaction']}',
         lastWatered: formatDate(data['last_watered']),
         lastFed: formatDate(data['last_fed']),
+        animalCount: '${data['animal_count']}',
       ));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
@@ -76,6 +85,7 @@ class FarmCubit extends Cubit<FarmState> {
         isUpdating: false,
         lastWatered: formatDate(updatedData['last_watered']),
         lastFed: formatDate(updatedData['last_fed']),
+
         message: response['message'] ?? 'Action successful',
         error: null, 
       ));

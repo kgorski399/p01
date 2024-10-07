@@ -1,6 +1,6 @@
 import json
 import boto3
-from datetime import datetime
+from datetime import datetime, timezone  
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 ssm = boto3.client('ssm')
@@ -29,10 +29,12 @@ def lambda_handler(event, context):
             "body": json.dumps("Invalid action. Please specify 'water' or 'feed'.")
         }
 
+    current_time = datetime.now(timezone.utc).isoformat()
+
     response = table.update_item(
         Key={'farm_id': farm_id},
         UpdateExpression=f"SET {update_field} = :date",
-        ExpressionAttributeValues={':date': datetime.now().isoformat()},
+        ExpressionAttributeValues={':date': current_time},
         ReturnValues="UPDATED_NEW"
     )
     
