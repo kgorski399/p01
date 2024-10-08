@@ -32,6 +32,7 @@ jobs:
     - name: Terraform Init, Plan, and Apply
       env:
         TF_VAR_sms_number: ${{ secrets.SMS_NUMBER }} 
+        TF_VAR_bucket_name: ${{ secrets.BUCKET_NAME }} 
       run: |
         cd terraform/dev
         terraform init
