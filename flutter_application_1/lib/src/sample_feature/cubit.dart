@@ -57,13 +57,14 @@ class FarmCubit extends Cubit<FarmState> {
       emit(state.copyWith(
           isLoading: true, error: null));
       final data = await apiRepository.getData();
-      emit(state.copyWith(
-        isLoading: false,
-        satisfaction: '${data['satisfaction']}',
-        lastWatered: formatDate(data['last_watered']),
-        lastFed: formatDate(data['last_fed']),
-        animalCount: '${data['animal_count']}',
-      ));
+   emit(state.copyWith(
+  isLoading: false,
+  satisfaction: '${data['satisfaction']}',
+  lastWatered: formatDate(DateTime.parse(data['last_watered']).toLocal().toIso8601String()),
+  lastFed: formatDate(DateTime.parse(data['last_fed']).toLocal().toIso8601String()),
+  animalCount: '${data['animal_count']}',
+));
+
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
