@@ -32,7 +32,7 @@ resource "aws_cloudwatch_metric_alarm" "s3_request_alarm" {
   alarm_name          = "S3RequestThreshold-${var.env}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
-  metric_name         = "NumberOfRequests"
+  metric_name         = "AllRequests"
   namespace           = "AWS/S3"
   period              = "900"
   statistic           = "Sum"
