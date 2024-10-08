@@ -51,3 +51,18 @@ resource "aws_iam_policy" "lambda_protect_resources_policy" {
     ]
   })
 }
+
+resource "aws_iam_policy" "ssm_read_policy" {
+  name = "SSMReadPolicy"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : "ssm:GetParameter",
+        "Resource" : "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/sms_number"
+      }
+    ]
+  })
+}
