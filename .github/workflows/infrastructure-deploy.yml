@@ -4,10 +4,13 @@ on:
   push:
     branches:
       - dev
+  workflow_dispatch:
+
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: dev
     timeout-minutes: 5 
 
     permissions:
@@ -24,12 +27,13 @@ jobs:
     - name: Configure AWS credentials with OIDC
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume:  arn:aws:iam::676206908438:role/gitHubActionsRole
+        role-to-assume:  ${{ secrets.GAROLE }}
         aws-region: "us-east-1"
 
     - name: Terraform Init, Plan, and Apply
       env:
         TF_VAR_sms_number: ${{ secrets.SMS_NUMBER }} 
+        TF_VAR_bucket_name: ${{ secrets.BUCKET_NAME }} 
       run: |
         cd terraform/dev
         terraform init
